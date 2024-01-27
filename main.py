@@ -4,8 +4,9 @@ import os
 
 
 # Set your OpenAI API key
-OPENAI_API_KEY = "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"
-
+OPENAI_API_KEY = "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"
+# openai.api_key_path = ".env"  # Replace with your key
+# openai.api_key = os.getenv("OPENAI_API_KEY")
 openai.api_key = OPENAI_API_KEY
 
 def generate_email(prompt):
