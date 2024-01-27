@@ -1,23 +1,23 @@
 import streamlit as st
 import pyperclip
-# from langchain.prompts import PromptTemplate
 from main import generate_email
 
+
 def format_email(text,Tone,Recepient):
-    # Add your email formatting logic here
     instruct = f'write/format the email in a {Tone} tone to my {Recepient}'
     prompt = text + "/n" + instruct
-    result = generate_email(prompt)
+    result = generate_email(prompt) #call to the function that will generate result based on prompt
     return result
 
-
+#page title
 st.title("Email Formatter")
 
 # Text input
 content_subject = st.text_input("Enter email Subject")
 email_content = st.text_area("Enter email content")
 content = "Subject: " + content_subject + email_content
-# Dropdown menu with 3 options
+
+# Dropdown menu for Tone Selection
 Tones = ["Formal","Friendly","Neutral"]
 Tone = st.selectbox("Tones", Tones)
 
