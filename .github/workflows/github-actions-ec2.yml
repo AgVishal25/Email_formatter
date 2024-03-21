@@ -1,41 +1,46 @@
 name: Push-to-EC2
 
 on:
- push:
-  branches:
-   - main
+  push:
+    branches:
+      - main
 
 jobs:
  deploy:
-  name: Deploy Python app to EC2 
-  runs-on: ubuntu-latest
+  name: Deploy Python app to EC2 
+  runs-on: ubuntu-latest
 
-  steps:
-   - name: Checkout the files
-    uses: actions/checkout@v2
-    with:
-        python-version: 3.9
+  steps:
+   - name: Checkout the files
+     uses: actions/checkout@v2
 
-    # Assuming Python and dependencies are setup on the EC2 instance
-   - name: Deploy to Server 1
-    uses: easingthemes/ssh-deploy@main
-    env:
-     SSH_PRIVATE_KEY: ${{ secrets.EC2_SSH_KEY }}
-     REMOTE_HOST: ${{ secrets.HOST_DNS }}
-     REMOTE_USER: ${{ secrets.USERNAME }}
-     TARGET: ${{ secrets.TARGET_DIR }}
-     ARGS: "rsync -r --exclude='__pycache__' . ${{ secrets.USERNAME }}@${{ secrets.HOST_DNS }}:${{ secrets.TARGET_DIR }}" 
+   - name: Deploy to Server 1
+     uses: easingthemes/ssh-deploy@main
+     env:
+      SSH_PRIVATE_KEY: ${{ secrets.EC2_SSH_KEY }}
+      REMOTE_HOST: ${{ secrets.HOST_DNS }}
+      REMOTE_USER: ${{ secrets.USERNAME }}
+      TARGET: ${{ secrets.TARGET_DIR }}
+      ARGS: "rsync -rv --exclude='.env' --exclude='__pycache__' . ${{ secrets.USERNAME }}@${{ secrets.HOST_DNS }}:${{ secrets.TARGET_DIR }}" 
 
-   - name: Executing remote commands
-    uses: appleboy/ssh-action@master
-    with:
-     host: ${{ secrets.HOST_DNS }}
-     username: ${{ secrets.USERNAME }}
-     key: ${{ secrets.EC2_SSH_KEY }}
-     script: |
-      cd ${{ secrets.TARGET_DIR }} 
-      # Install dependencies if needed
-      pip install -r requirements.txt 
+   - name: Executing remote commands
+     uses: appleboy/ssh-action@master
+     with:
+      host: ${{ secrets.HOST_DNS }}
+      username: ${{ secrets.USERNAME }}
+      key: ${{ secrets.EC2_SSH_KEY }}
+      script: |
+        cd ${{ secrets.TARGET_DIR }}
 
-      # Run the Python app (adjust as needed)
-      nohup python3 app.py & 
+        # Check and setup Python virtual environment
+        python3 -m venv venv
+        source venv/bin/activate
+
+        # Install dependencies
+        pip install -r requirements.txt
+
+        # Check if the app is already running, and stop it
+        kill $(pgrep -f 'python3 app.py') > /dev/null 2>&1 || true
+
+        # Run the Python app in a virtual environment as a background process
+        nohup python3 app.py > app.log 2>&1 &
