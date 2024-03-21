@@ -13,6 +13,8 @@ jobs:
   steps:
    - name: Checkout the files
     uses: actions/checkout@v2
+    with:
+        python-version: 3.9
 
     # Assuming Python and dependencies are setup on the EC2 instance
    - name: Deploy to Server 1
