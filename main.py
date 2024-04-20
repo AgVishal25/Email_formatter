@@ -7,7 +7,7 @@ import streamlit as st
 # load_dotenv()
 
 # Set your OpenAI API key
-# OPENAI_API_KEY = "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"
+
 # openai.api_key_path = ".env"  # Replace with your key
 # openai.api_key = os.getenv("OPENAI_API_KEY")
 OPENAI_API_KEY = st.secrets["OPENAI_API_KEY"]  # Access nested secrets
